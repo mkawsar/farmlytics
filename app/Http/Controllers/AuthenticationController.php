@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Auth\LoginFormRequest;
+use App\Services\AuthService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AuthenticationController extends Controller
 {
-    public function login(): RedirectResponse|Response
+    public function login(): Response
     {
-        if (Auth::check()) {
-            return redirect()->route('home');
-        }
-
         return Inertia::render('auth/login');
+    }
+
+    public function authenticate(LoginFormRequest $request, AuthService $authService): RedirectResponse
+    {
+        return $authService->authenticate($request);
     }
 }
