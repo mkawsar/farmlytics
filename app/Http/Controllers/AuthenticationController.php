@@ -21,12 +21,8 @@ class AuthenticationController extends Controller
         return $authService->authenticate($request);
     }
 
-    public function logout(Request $request): RedirectResponse
+    public function logout(Request $request, AuthService $authService): RedirectResponse
     {
-        auth()->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect()->route('login');
+        return $authService->logout($request);
     }
 }

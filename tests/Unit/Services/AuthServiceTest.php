@@ -8,6 +8,10 @@ use App\Models\User;
 use App\Repositories\AuthRepository;
 use App\Services\AuthService;
 use Illuminate\Contracts\Hashing\Hasher;
+use Illuminate\Contracts\Session\Session;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Facade;
 use Mockery;
 use PHPUnit\Framework\Attributes\Test;
@@ -121,5 +125,36 @@ class AuthServiceTest extends ServiceTestCase
         $this->assertSame($user, $result);
         $this->assertSame(1, $result->id);
         $this->assertSame('user@example.com', $result->email);
+    }
+
+    #[Test]
+    public function logout_calls_auth_logout_and_invalidates_session(): void
+    {
+        /*
+         * Given: Auth mock and a request with a session mock
+         * When: logout is called with that request
+         * Then: Auth::logout(), session invalidate(), and regenerateToken() are called,
+         *       and a redirect to login is returned
+         */
+        $this->mockAuth->shouldReceive('logout')->once();
+
+        $session = Mockery::mock(Session::class);
+        $session->shouldReceive('invalidate')->once();
+        $session->shouldReceive('regenerateToken')->once();
+
+        $request = Request::create('/logout', 'POST');
+        $request->setLaravelSession($session);
+
+        $redirectResponse = new RedirectResponse('/login');
+        $redirector = Mockery::mock(Redirector::class)->shouldIgnoreMissing();
+        $redirector->shouldReceive('route')->once()->with('login')->andReturn($redirectResponse);
+        $this->app->instance('redirect', $redirector);
+
+        $repo = Mockery::mock(AuthRepository::class);
+        $service = new AuthService($repo);
+        $response = $service->logout($request);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('/login', $response->getTargetUrl());
     }
 }

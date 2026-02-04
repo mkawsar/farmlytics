@@ -6,6 +6,7 @@ use App\Http\Requests\Auth\LoginFormRequest;
 use App\Models\User;
 use App\Repositories\AuthRepository;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -42,5 +43,14 @@ class AuthService
         }
 
         return $user;
+    }
+
+    public function logout(Request $request): RedirectResponse
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
     }
 }
