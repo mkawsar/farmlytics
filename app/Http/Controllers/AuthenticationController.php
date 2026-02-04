@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Auth\LoginFormRequest;
 use App\Services\AuthService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -18,5 +19,14 @@ class AuthenticationController extends Controller
     public function authenticate(LoginFormRequest $request, AuthService $authService): RedirectResponse
     {
         return $authService->authenticate($request);
+    }
+
+    public function logout(Request $request): RedirectResponse
+    {
+        auth()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
     }
 }
