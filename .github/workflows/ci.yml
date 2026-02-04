@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+
+jobs:
+  api-lint-security-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
+      with:
+        php-version: '8.3'
+        extensions: mbstring, dom, fileinfo, mysql
+        coverage: xdebug
+        tools: pecl
+
+    - name: Install ODBC dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y unixodbc-dev
+
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+    - name: Cache composer dependencies
+      uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+      with:
+        path: vendor
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - name: Install Dependencies
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+    - name: Security Check
+      run: |
+        AUDIT=$(composer audit --format=json 2>&1 || true)
+        if echo "$AUDIT" | grep -qE '"advisories":\s*\[[^]]'; then
+          echo "Security advisories found!"
+          echo "$AUDIT"
+          exit 1
+        fi
+        echo "Security audit passed"
+    - name: Generate key
+      run: php artisan key:generate
+
+    - name: Directory Permissions
+      run: chmod -R 777 storage bootstrap/cache
+
+    - name: Create Database
+      run: |
+        mkdir -p database
+        touch database/database.sqlite
+
+    - name: Laravel Pint
+      run: vendor/bin/pint --test
+
+    - name: Larastan (PHPStan for Laravel)
+      run: vendor/bin/phpstan analyse
+
+    - name: Execute tests (Unit and Feature tests) via PHPUnit
+      env:
+        APP_ENV: testing
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: |
+        vendor/bin/phpunit --stop-on-failure --colors=never
