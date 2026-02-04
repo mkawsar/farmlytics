@@ -1,7 +1,7 @@
 <template>
-    <Head title="Login" />
+    <Head title="Home" />
     <div>
-        <p class="text-3xl font-bold underline">Login</p>
+        <h1>Home</h1>
     </div>
 </template>
 

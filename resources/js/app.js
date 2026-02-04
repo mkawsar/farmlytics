@@ -3,6 +3,7 @@ import { createApp, h } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
 
 createInertiaApp({
+    title: title => title ? `CowKeeper - ${title}` : 'CowKeeper',
     resolve: name => {
         const pages = import.meta.glob('./pages/**/*.vue', { eager: true })
         return pages[`./pages/${name}.vue`]
