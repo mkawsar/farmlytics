@@ -71,7 +71,7 @@
                         <button
                             type="submit"
                             :disabled="form.processing"
-                            class="w-full rounded-xl bg-[#2d5016] px-4 py-3.5 font-semibold text-white shadow-lg shadow-[#2d5016]/25 hover:bg-[#244012] focus:outline-none focus:ring-2 focus:ring-[#2d5016] focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed transition"
+                            class="w-full cursor-pointer rounded-xl bg-[#2d5016] px-4 py-3.5 font-semibold text-white shadow-lg shadow-[#2d5016]/25 hover:bg-[#244012] focus:outline-none focus:ring-2 focus:ring-[#2d5016] focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed transition"
                         >
                             <span v-if="form.processing">Signing in…</span>
                             <span v-else>Sign in</span>
