@@ -87,7 +87,7 @@ resources/js/
 
 ## Debug Mode
 
-For local development, enable debug mode in `.env.local`:
+For local development, enable debug mode in `.env`:
 
 ```bash
 APP_DEBUG=true
