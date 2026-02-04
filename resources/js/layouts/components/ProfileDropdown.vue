@@ -13,14 +13,14 @@
         </button>
 
         <div
-            class="pointer-events-none absolute right-0 top-full z-50 w-56 origin-top-right scale-95 rounded-xl border border-stone-200/80 bg-white pt-2 opacity-0 shadow-lg transition duration-150 ease-out group-hover:scale-100 group-hover:opacity-100 group-hover:pointer-events-auto dark:border-stone-600 dark:bg-stone-800"
+            class="absolute right-0 top-full z-50 w-56 origin-top-right scale-95 rounded-xl border border-stone-200/80 bg-white pt-2 opacity-0 shadow-lg transition duration-150 ease-out pointer-events-none group-hover:scale-100 group-hover:opacity-100 group-hover:pointer-events-auto dark:border-stone-600 dark:bg-stone-800"
             role="menu"
         >
-            <div class="border-b border-stone-100 bg-white px-4 py-3 rounded-t-xl dark:border-stone-700 dark:bg-stone-800">
+            <div class="rounded-t-xl border-b border-stone-100 bg-white px-4 py-3 dark:border-stone-700 dark:bg-stone-800">
                 <p class="truncate text-sm font-medium text-stone-900 dark:text-stone-100">{{ user?.name ?? 'User' }}</p>
                 <p class="truncate text-xs text-stone-500 dark:text-stone-400">{{ user?.email }}</p>
             </div>
-            <div class="py-1 bg-white rounded-b-xl dark:bg-stone-800">
+            <div class="rounded-b-xl bg-white py-1 dark:bg-stone-800">
                 <Link
                     href="/profile"
                     class="block px-4 py-2 text-sm text-stone-700 hover:bg-stone-50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-700 dark:hover:text-stone-100"

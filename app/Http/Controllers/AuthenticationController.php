@@ -13,7 +13,7 @@ class AuthenticationController extends Controller
 {
     public function login(): Response
     {
-        return Inertia::render('auth/login');
+        return Inertia::render('auth/Login');
     }
 
     public function authenticate(LoginFormRequest $request, AuthService $authService): RedirectResponse
