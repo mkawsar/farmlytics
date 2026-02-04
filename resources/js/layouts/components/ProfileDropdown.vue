@@ -32,7 +32,7 @@
                     href="/logout"
                     method="post"
                     as="button"
-                    class="block w-full px-4 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-700 dark:hover:text-stone-100"
+                    class="block w-full cursor-pointer px-4 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-700 dark:hover:text-stone-100"
                     role="menuitem"
                 >
                     Log out
