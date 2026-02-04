@@ -1,6 +1,6 @@
-
 import { createApp, h } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
+import ToastContainer from './components/ToastContainer.vue'
 
 createInertiaApp({
     title: title => title ? `CowKeeper - ${title}` : 'CowKeeper',
@@ -9,8 +9,10 @@ createInertiaApp({
         return pages[`./pages/${name}.vue`]
     },
     setup({ el, App, props, plugin }) {
-        createApp({ render: () => h(App, props) })
-            .use(plugin)
-            .mount(el)
+        const app = createApp({
+            render: () => h('div', { class: 'contents' }, [h(App, props), h(ToastContainer)]),
+        })
+        app.use(plugin)
+        app.mount(el)
     },
 });

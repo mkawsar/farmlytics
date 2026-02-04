@@ -31,7 +31,7 @@ class AuthService
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
 
-        return redirect()->intended(route('home'));
+        return redirect()->intended(route('home'))->with('success', 'Welcome back!');
     }
 
     public function attemptLogin(array $credentials): ?User
