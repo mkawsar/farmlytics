@@ -23,10 +23,6 @@ class EnsureUserHasRole
 
         $userRole = $request->user()->role;
 
-        if (! $userRole instanceof Role) {
-            abort(403, 'Unauthorized.');
-        }
-
         $allowed = array_map(
             fn (string $role) => Role::tryFrom($role),
             $roles
