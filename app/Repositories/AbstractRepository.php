@@ -1,102 +1,188 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repositories;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Base repository for Eloquent models.
+ *
+ * Provides a consistent data access layer: create, read, update, delete (CRUD)
+ * and common query helpers. Concrete repositories extend this class and
+ * implement getModelClass() to bind to a specific model.
+ *
+ * @template T of Model
+ */
 abstract class AbstractRepository
 {
-    protected $model;
+    /** @var T */
+    protected Model $model;
 
+    /**
+     * Return the fully qualified model class name (e.g. App\Models\User).
+     *
+     * @return class-string<T>
+     */
     abstract public function getModelClass(): string;
 
     public function __construct()
     {
-        $this->model = app($this->getModelClass());
+        $class = $this->getModelClass();
+        $this->model = app($class);
     }
 
+    /**
+     * Get the underlying Eloquent model instance (new query each time).
+     *
+     * @return T
+     */
     public function getModel(): Model
     {
         return $this->model;
     }
 
+    // -------------------------------------------------------------------------
+    // Create
+    // -------------------------------------------------------------------------
+
     /**
-     * create new record
+     * Create a new record from the given attributes.
+     *
+     * @param  array<string, mixed>  $attributes
+     * @return T
      */
-    public function create(array $fields): object
+    public function create(array $attributes): Model
     {
-        return $this->model->create($fields);
+        return $this->model->newQuery()->create($attributes);
     }
 
     /**
-     * create or update if exist
+     * Create a new record or update an existing one matching the conditions.
+     *
+     * @param  array<string, mixed>  $attributes  Attributes to set (on create and update).
+     * @param  array<string, mixed>  $conditions  Attributes used to find existing record.
+     * @return T
      */
-    public function createOrUpdate(array $fields, array $conditions): object
+    public function createOrUpdate(array $attributes, array $conditions): Model
     {
-        return $this->model->updateOrCreate($conditions, $fields);
+        return $this->model->newQuery()->updateOrCreate($conditions, $attributes);
+    }
+
+    // -------------------------------------------------------------------------
+    // Read
+    // -------------------------------------------------------------------------
+
+    /**
+     * Find a record by primary key; throws if not found.
+     *
+     * @return T
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
+    public function getById(int|string $id): Model
+    {
+        return $this->model->newQuery()->findOrFail($id);
     }
 
     /**
-     * update record
+     * Find the first record matching the given conditions.
+     *
+     * @param  array<string, mixed>  $conditions
+     * @return T|null
      */
-    public function update(int|string $id, array $fields): ?object
+    public function getFirst(array $conditions): ?Model
     {
-        $record = $this->model->find($id);
+        $result = $this->model->newQuery()->where($conditions)->first();
 
-        if ($record) {
-            $record->update($fields);
+        return $result instanceof Model ? $result : null;
+    }
 
-            return $record;
+    /**
+     * Get all records matching the given conditions.
+     *
+     * @param  array<string, mixed>  $conditions
+     * @return Collection<int, T>
+     */
+    public function getByConditions(array $conditions): Collection
+    {
+        return $this->model->newQuery()->where($conditions)->get();
+    }
+
+    /**
+     * Get all records, optionally filtered by conditions.
+     *
+     * @param  array<string, mixed>  $conditions
+     * @return Collection<int, T>
+     */
+    public function getAll(array $conditions = []): Collection
+    {
+        $query = $this->model->newQuery();
+
+        if ($conditions !== []) {
+            $query->where($conditions);
         }
 
-        return null;
+        return $query->get();
     }
 
     /**
-     * delete record
+     * Get a paginated list of records matching the given conditions.
+     *
+     * @param  array<string, mixed>  $conditions
+     * @return LengthAwarePaginator<T>
      */
-    public function delete(array $conditions): bool
+    public function getAllWithPagination(array $conditions = [], int $perPage = 15): LengthAwarePaginator
     {
-        return $this->model->where($conditions)->delete();
+        $query = $this->model->newQuery();
+
+        if ($conditions !== []) {
+            $query->where($conditions);
+        }
+
+        return $query->paginate($perPage);
     }
 
-    /**
-     * get record by id
-     */
-    public function getById(int $id): object
-    {
-        return $this->model->findOrFail($id);
-    }
+    // -------------------------------------------------------------------------
+    // Update
+    // -------------------------------------------------------------------------
 
     /**
-     * get record by conditions
+     * Update a record by primary key. Returns the updated model or null if not found.
+     *
+     * @param  array<string, mixed>  $attributes
+     * @return T|null
      */
-    public function getByConditions(array $conditions): object
+    public function update(int|string $id, array $attributes): ?Model
     {
-        return $this->model->where($conditions)->get();
+        $record = $this->model->newQuery()->find($id);
+
+        if ($record === null) {
+            return null;
+        }
+
+        $record->update($attributes);
+
+        return $record->fresh();
     }
 
-    /**
-     * get all records
-     */
-    public function getAll(array $conditions = []): object
-    {
-        return $this->model->where($conditions)->get();
-    }
+    // -------------------------------------------------------------------------
+    // Delete
+    // -------------------------------------------------------------------------
 
     /**
-     * get all records with pagination and conditions
+     * Delete all records matching the given conditions.
+     *
+     * For soft-deletable models, this performs a soft delete unless forceDelete is used on the query.
+     *
+     * @param  array<string, mixed>  $conditions
+     * @return int Number of rows deleted (or soft-deleted).
      */
-    public function getAllWithPagination(array $conditions, int $perPage = 10): object
+    public function delete(array $conditions): int
     {
-        return $this->model->where($conditions)->paginate($perPage);
-    }
-
-    /**
-     * get first record by conditions
-     */
-    public function getFirst(array $conditions): object
-    {
-        return $this->model->where($conditions)->first();
+        return $this->model->newQuery()->where($conditions)->delete();
     }
 }
