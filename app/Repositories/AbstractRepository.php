@@ -109,7 +109,10 @@ abstract class AbstractRepository
      */
     public function getByConditions(array $conditions): Collection
     {
-        return $this->model->newQuery()->where($conditions)->get();
+        /** @var Collection<int, T> $result */
+        $result = $this->model->newQuery()->where($conditions)->get();
+
+        return $result;
     }
 
     /**
@@ -126,14 +129,17 @@ abstract class AbstractRepository
             $query->where($conditions);
         }
 
-        return $query->get();
+        /** @var Collection<int, T> $result */
+        $result = $query->get();
+
+        return $result;
     }
 
     /**
      * Get a paginated list of records matching the given conditions.
      *
      * @param  array<string, mixed>  $conditions
-     * @return LengthAwarePaginator<T>
+     * @return LengthAwarePaginator<int, T>
      */
     public function getAllWithPagination(array $conditions = [], int $perPage = 15): LengthAwarePaginator
     {
@@ -143,7 +149,10 @@ abstract class AbstractRepository
             $query->where($conditions);
         }
 
-        return $query->paginate($perPage);
+        /** @var LengthAwarePaginator<int, T> $result */
+        $result = $query->paginate($perPage);
+
+        return $result;
     }
 
     // -------------------------------------------------------------------------
