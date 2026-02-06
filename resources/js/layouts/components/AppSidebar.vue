@@ -42,6 +42,7 @@ const page = usePage();
 
 const navItems = [
     { label: 'Dashboard', href: '/', icon: '◉' },
+    { label: 'Farms', href: '/farms', icon: '◈' },
 ];
 
 function isActive(href) {

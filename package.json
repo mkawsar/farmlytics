@@ -18,6 +18,8 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
-        "@inertiajs/vue3": "^2.3.13"
+        "@inertiajs/vue3": "^2.3.13",
+        "flowbite": "^4.0.1",
+        "flowbite-vue": "^0.2.3"
     }
 }
