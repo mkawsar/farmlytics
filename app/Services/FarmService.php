@@ -19,9 +19,17 @@ class FarmService
      *
      * @param  array<string, mixed>  $conditions
      */
-    public function getAllPaginated(array $conditions = [], int $perPage = 15): LengthAwarePaginator
+    public function getAllPaginated(array $conditions = [], int $perPage = 10): LengthAwarePaginator
     {
         return $this->farmRepository->getAllFarmsPaginated($conditions, $perPage);
+    }
+
+    /**
+     * Get a paginated list of farms with optional search on name and location.
+     */
+    public function getAllPaginatedWithSearch(?string $search, int $perPage = 10): LengthAwarePaginator
+    {
+        return $this->farmRepository->getFarmsPaginatedWithSearch($search, $perPage);
     }
 
     /**
@@ -71,5 +79,15 @@ class FarmService
     public function delete(int $id): bool
     {
         return $this->farmRepository->deleteFarm($id);
+    }
+
+    /**
+     * Soft-delete multiple farms by ids. Returns the number deleted.
+     *
+     * @param  array<int>  $ids
+     */
+    public function deleteMany(array $ids): int
+    {
+        return $this->farmRepository->deleteFarmsByIds($ids);
     }
 }

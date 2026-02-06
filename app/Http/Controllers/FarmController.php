@@ -22,10 +22,15 @@ class FarmController extends Controller
     public function index(Request $request): Response
     {
         $perPage = (int) $request->get('per_page', 15);
-        $farms = $this->farmService->getAllPaginated([], $perPage);
+        $search = $request->get('search', '');
+        $farms = $this->farmService->getAllPaginatedWithSearch($search ?: null, $perPage);
+        $farms->appends($request->only('search'));
 
         return Inertia::render('farms/Index', [
             'farms' => $farms,
+            'filters' => [
+                'search' => $search,
+            ],
         ]);
     }
 
@@ -104,5 +109,28 @@ class FarmController extends Controller
         }
 
         return redirect()->route('farms.index')->with('success', 'Farm deleted successfully.');
+    }
+
+    /**
+     * Remove multiple farms (soft delete).
+     */
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $ids = $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['integer', 'min:1'],
+        ])['ids'];
+
+        $deleted = $this->farmService->deleteMany($ids);
+
+        if ($deleted === 0) {
+            return redirect()->back()->with('error', 'No farms were deleted.');
+        }
+
+        $message = $deleted === 1
+            ? 'Farm deleted successfully.'
+            : "{$deleted} farms deleted successfully.";
+
+        return redirect()->route('farms.index')->with('success', $message);
     }
 }

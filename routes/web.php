@@ -10,5 +10,6 @@ Route::post('/login', [AuthenticationController::class, 'authenticate'])->name('
 Route::middleware('auth')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::post('/logout', [AuthenticationController::class, 'logout'])->name('logout');
+    Route::post('farms/bulk-destroy', [FarmController::class, 'bulkDestroy'])->name('farms.bulk-destroy');
     Route::resource('farms', FarmController::class);
 });
