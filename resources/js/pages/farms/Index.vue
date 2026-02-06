@@ -23,9 +23,9 @@
                     </FwbButton>
                 </div>
 
-                <div class="mt-8 overflow-hidden shadow-md sm:rounded-lg">
-                    <FwbTable hoverable>
-                        <FwbTableHead>
+                <DataTable class="mt-8">
+                    <Table>
+                        <template #head>
                             <FwbTableHeadCell>Name</FwbTableHeadCell>
                             <FwbTableHeadCell>Location</FwbTableHeadCell>
                             <FwbTableHeadCell>Type</FwbTableHeadCell>
@@ -33,129 +33,80 @@
                             <FwbTableHeadCell>
                                 <span class="sr-only">Actions</span>
                             </FwbTableHeadCell>
-                        </FwbTableHead>
-                        <FwbTableBody>
-                            <FwbTableRow v-for="farm in farms.data" :key="farm.id">
-                                <FwbTableCell class="font-medium text-gray-900 dark:text-white">
-                                    <Link
-                                        :href="`/farms/${farm.id}`"
-                                        class="text-green-600 hover:underline dark:text-green-500"
-                                    >
-                                        {{ farm.name }}
-                                    </Link>
-                                </FwbTableCell>
-                                <FwbTableCell>{{ farm.location || '—' }}</FwbTableCell>
-                                <FwbTableCell>{{ farmTypeLabel(farm.type) }}</FwbTableCell>
-                                <FwbTableCell>{{ farm.capacity != null ? farm.capacity : '—' }}</FwbTableCell>
-                                <FwbTableCell class="text-right">
-                                    <div class="flex items-center justify-end gap-2">
-                                        <Link
-                                            :href="`/farms/${farm.id}/edit`"
-                                            class="font-medium text-blue-600 hover:underline dark:text-blue-500"
-                                        >
-                                            Edit
-                                        </Link>
-                                        <button
-                                            type="button"
-                                            class="font-medium text-red-600 hover:underline dark:text-red-500"
-                                            @click="confirmDelete(farm)"
-                                        >
-                                            Delete
-                                        </button>
-                                    </div>
-                                </FwbTableCell>
-                            </FwbTableRow>
-                            <FwbTableRow v-if="!farms.data || farms.data.length === 0">
-                                <FwbTableCell
-                                    colspan="5"
-                                    class="px-6 py-16 text-center text-gray-500 dark:text-gray-400"
+                        </template>
+                        <FwbTableRow v-for="farm in farms.data" :key="farm.id">
+                            <FwbTableCell class="font-medium text-gray-900 dark:text-white">
+                                <Link
+                                    :href="`/farms/${farm.id}`"
+                                    class="text-green-600 hover:underline dark:text-green-500"
                                 >
-                                    <div class="flex min-h-[280px] flex-col items-center justify-center gap-1">
-                                        <span>No farms yet.</span>
-                                        <Link href="/farms/create" class="font-medium text-green-600 hover:underline dark:text-green-500">Add your first farm</Link>
-                                    </div>
-                                </FwbTableCell>
-                            </FwbTableRow>
-                        </FwbTableBody>
-                    </FwbTable>
-
-                    <div
-                        v-if="farms.last_page > 1"
-                        class="flex flex-wrap items-center justify-between gap-2 border-t border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-800"
-                    >
-                        <p class="text-sm text-gray-700 dark:text-gray-400">
-                            Showing {{ farms.from }}–{{ farms.to }} of {{ farms.total }}
-                        </p>
-                        <div class="flex gap-1">
-                            <Link
-                                v-for="link in farms.links"
-                                :key="link.label"
-                                :href="link.url"
-                                :class="[
-                                    'inline-flex h-10 min-w-[2.5rem] items-center justify-center rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white',
-                                    link.active ? 'border-green-500 bg-green-50 text-green-600 dark:border-green-500 dark:bg-green-900/20 dark:text-green-500' : '',
-                                    !link.url ? 'pointer-events-none cursor-not-allowed opacity-50' : ''
-                                ]"
-                                v-html="link.label"
-                            />
-                        </div>
-                    </div>
-                </div>
+                                    {{ farm.name }}
+                                </Link>
+                            </FwbTableCell>
+                            <FwbTableCell>{{ farm.location || '—' }}</FwbTableCell>
+                            <FwbTableCell>{{ farmTypeLabel(farm.type) }}</FwbTableCell>
+                            <FwbTableCell>{{ farm.capacity != null ? farm.capacity : '—' }}</FwbTableCell>
+                            <FwbTableCell class="text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <Link
+                                        :href="`/farms/${farm.id}/edit`"
+                                        class="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                                    >
+                                        Edit
+                                    </Link>
+                                    <button
+                                        type="button"
+                                        class="font-medium text-red-600 hover:underline dark:text-red-500"
+                                        @click="confirmDelete(farm)"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </FwbTableCell>
+                        </FwbTableRow>
+                        <FwbTableRow v-if="!farms.data || farms.data.length === 0">
+                            <FwbTableCell
+                                colspan="5"
+                                class="px-6 py-16 text-center text-gray-500 dark:text-gray-400"
+                            >
+                                <div class="flex min-h-[280px] flex-col items-center justify-center gap-1">
+                                    <span>No farms yet.</span>
+                                    <Link href="/farms/create" class="font-medium text-green-600 hover:underline dark:text-green-500">Add your first farm</Link>
+                                </div>
+                            </FwbTableCell>
+                        </FwbTableRow>
+                    </Table>
+                    <template #pagination>
+                        <Pagination :paginator="farms" />
+                    </template>
+                </DataTable>
             </div>
         </div>
-
-        <Modal v-if="farmToDelete" :show="!!farmToDelete" @close="farmToDelete = null">
-            <div class="p-6">
-                <h3 class="text-lg font-semibold text-stone-900 dark:text-stone-100">Delete farm</h3>
-                <p class="mt-2 text-stone-600 dark:text-stone-400">
-                    Are you sure you want to delete <strong>{{ farmToDelete.name }}</strong>? This can be undone later.
-                </p>
-                <div class="mt-6 flex justify-end gap-3">
-                    <button
-                        type="button"
-                        class="rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-stone-50 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
-                        @click="farmToDelete = null"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="button"
-                        class="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                        :disabled="deleting"
-                        @click="performDelete"
-                    >
-                        {{ deleting ? 'Deleting…' : 'Delete' }}
-                    </button>
-                </div>
-            </div>
-        </Modal>
     </AppLayout>
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import {
     FwbButton,
-    FwbTable,
-    FwbTableBody,
     FwbTableCell,
-    FwbTableHead,
     FwbTableHeadCell,
     FwbTableRow,
 } from 'flowbite-vue';
+import { useConfirmDelete } from '../../composables/useConfirmDelete';
 import AppLayout from '../../layouts/AppLayout.vue';
-import Modal from '../../components/Modal.vue';
+import DataTable from '../../components/DataTable.vue';
+import Pagination from '../../components/Pagination.vue';
+import Table from '../../components/Table.vue';
 
-const props = defineProps({
+defineProps({
     farms: {
         type: Object,
         required: true,
     },
 });
 
-const farmToDelete = ref(null);
-const deleting = ref(false);
+const { open: openConfirmDelete } = useConfirmDelete();
 
 const FARM_TYPES = {
     dairy: 'Dairy',
@@ -168,18 +119,10 @@ function farmTypeLabel(type) {
 }
 
 function confirmDelete(farm) {
-    farmToDelete.value = farm;
-}
-
-function performDelete() {
-    if (!farmToDelete.value) return;
-    deleting.value = true;
-    router.delete(`/farms/${farmToDelete.value.id}`, {
-        preserveScroll: true,
-        onFinish: () => {
-            deleting.value = false;
-            farmToDelete.value = null;
-        },
+    openConfirmDelete({
+        title: 'Delete farm',
+        message: `Are you sure you want to delete <strong>${farm.name}</strong>? This can be undone later.`,
+        onConfirm: () => router.delete(`/farms/${farm.id}`, { preserveScroll: true }),
     });
 }
 </script>

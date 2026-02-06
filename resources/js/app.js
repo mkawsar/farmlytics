@@ -1,5 +1,6 @@
 import { createApp, h } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
+import ConfirmDeleteModal from './components/ConfirmDeleteModal.vue'
 import ToastContainer from './components/ToastContainer.vue'
 
 createInertiaApp({
@@ -10,7 +11,11 @@ createInertiaApp({
     },
     setup({ el, App, props, plugin }) {
         const app = createApp({
-            render: () => h('div', { class: 'contents' }, [h(App, props), h(ToastContainer)]),
+            render: () => h('div', { class: 'contents' }, [
+                h(App, props),
+                h(ToastContainer),
+                h(ConfirmDeleteModal),
+            ]),
         })
         app.use(plugin)
         app.mount(el)

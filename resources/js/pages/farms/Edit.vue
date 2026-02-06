@@ -2,7 +2,7 @@
     <Head :title="`Edit ${farm.name}`" />
     <AppLayout>
         <div class="p-6 sm:p-8">
-            <div class="max-w-xl">
+            <div class="w-full">
                 <Link
                     :href="`/farms/${farm.id}`"
                     class="text-sm font-medium text-stone-500 transition hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-300"
