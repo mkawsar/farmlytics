@@ -1,0 +1,99 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services;
+
+use App\Models\Animal;
+use App\Repositories\AnimalRepository;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
+class AnimalService
+{
+    public function __construct(
+        protected AnimalRepository $animalRepository,
+        protected ShedService $shedService
+    ) {}
+
+    /**
+     * Get a paginated list of all animals with optional search.
+     *
+     * @return LengthAwarePaginator<int, Animal>
+     */
+    public function getPaginated(?string $search, int $perPage = 15): LengthAwarePaginator
+    {
+        return $this->animalRepository->getAnimalsPaginated($search ?: null, $perPage);
+    }
+
+    /**
+     * Get a paginated list of animals for a shed with optional search.
+     *
+     * @return LengthAwarePaginator<int, Animal>
+     */
+    public function getPaginatedByShed(int $shedId, ?string $search, int $perPage = 15): LengthAwarePaginator
+    {
+        return $this->animalRepository->getAnimalsPaginatedByShed($shedId, $search ?: null, $perPage);
+    }
+
+    /**
+     * Find an animal by id; throws if not found.
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
+    public function getById(int $id): Animal
+    {
+        return $this->animalRepository->getAnimalById($id);
+    }
+
+    /**
+     * Create a new animal for a shed.
+     *
+     * @param  array<string, mixed>  $data  Validated data (animal_id, breed, gender, etc.).
+     * @param  int|null  $userId  Authenticated user id for created_by.
+     */
+    public function create(int $shedId, array $data, ?int $userId = null): Animal
+    {
+        $shed = $this->shedService->getById($shedId);
+        $data['shed_id'] = $shedId;
+        $data['farm_id'] = $shed->farm_id;
+        if ($userId !== null) {
+            $data['created_by'] = $userId;
+            $data['updated_by'] = $userId;
+        }
+
+        return $this->animalRepository->createAnimal($data);
+    }
+
+    /**
+     * Update an existing animal.
+     *
+     * @param  array<string, mixed>  $data  Validated data.
+     * @param  int|null  $userId  Authenticated user id for updated_by.
+     */
+    public function update(int $id, array $data, ?int $userId = null): ?Animal
+    {
+        if ($userId !== null) {
+            $data['updated_by'] = $userId;
+        }
+
+        return $this->animalRepository->updateAnimal($id, $data);
+    }
+
+    /**
+     * Soft-delete an animal by id.
+     */
+    public function delete(int $id): bool
+    {
+        return $this->animalRepository->deleteAnimal($id);
+    }
+
+    /**
+     * Soft-delete multiple animals by ids. Returns the number deleted.
+     *
+     * @param  array<int>  $ids
+     */
+    public function deleteMany(array $ids): int
+    {
+        return $this->animalRepository->deleteAnimalsByIds($ids);
+    }
+}

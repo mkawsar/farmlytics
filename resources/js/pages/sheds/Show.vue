@@ -22,6 +22,13 @@
                     </div>
                     <div class="flex gap-2">
                         <Link
+                            v-if="shed.farm"
+                            :href="`/farms/${shed.farm.id}/sheds/${shed.id}/animals`"
+                            class="inline-flex cursor-pointer items-center justify-center rounded-xl bg-[#2d5016] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#2d5016]/25 transition hover:bg-[#244012] focus:outline-none focus:ring-2 focus:ring-[#2d5016] focus:ring-offset-2"
+                        >
+                            View animals
+                        </Link>
+                        <Link
                             :href="`/sheds/${shed.id}/edit`"
                             class="inline-flex cursor-pointer items-center justify-center rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-semibold text-stone-700 transition hover:bg-stone-50 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
                         >
