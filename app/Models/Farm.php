@@ -37,6 +37,16 @@ class Farm extends Model
         return $this->hasMany(Animal::class);
     }
 
+    public function incomeTransactions(): HasMany
+    {
+        return $this->hasMany(IncomeTransaction::class);
+    }
+
+    public function expenseTransactions(): HasMany
+    {
+        return $this->hasMany(ExpenseTransaction::class);
+    }
+
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

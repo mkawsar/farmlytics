@@ -89,6 +89,118 @@
                         </div>
                     </dl>
                 </div>
+
+                <!-- Finance: Profit & Loss per cow -->
+                <div class="mt-8">
+                    <h2 class="text-lg font-semibold text-stone-900 dark:text-stone-100">Profit / Loss for this cow</h2>
+                    <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                        Profit = (Income + Dung share) − (Labour share + Feed + Purchase). Labour = total labour / total cows; Dung = total dung sell / total cows.
+                    </p>
+                    <div v-if="animal.purchase_price != null" class="mt-3 flex items-center gap-2 rounded-lg border border-stone-200/80 bg-stone-50 px-4 py-2.5 dark:border-stone-700 dark:bg-stone-800/50">
+                        <span class="text-sm font-medium text-stone-600 dark:text-stone-300">Purchase price (this cow)</span>
+                        <span class="text-sm font-semibold text-stone-900 dark:text-stone-100">{{ formatMoney(animal.purchase_price) }}</span>
+                    </div>
+                    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                        <div class="rounded-xl border border-stone-200/80 bg-white p-4 shadow-sm dark:border-stone-700 dark:bg-stone-800">
+                            <h3 class="text-sm font-medium text-stone-500 dark:text-stone-400">Last 12 months</h3>
+                            <dl class="mt-2 space-y-1 text-sm">
+                                <div class="flex justify-between">
+                                    <dt class="text-stone-500 dark:text-stone-400">Income (milk, etc.)</dt>
+                                    <dd class="font-medium text-stone-900 dark:text-stone-100">{{ formatMoney(profitLossYear.income) }}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-stone-500 dark:text-stone-400">Dung sell (allocated)</dt>
+                                    <dd class="font-medium text-stone-900 dark:text-stone-100">{{ formatMoney(profitLossYear.dung_allocated) }}</dd>
+                                </div>
+                                <div class="flex justify-between border-t border-stone-200 pt-2 dark:border-stone-700">
+                                    <dt class="text-stone-500 dark:text-stone-400">Labour (total / cows)</dt>
+                                    <dd class="font-medium text-stone-900 dark:text-stone-100">{{ formatMoney(profitLossYear.labour_allocated) }}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-stone-500 dark:text-stone-400">Feed</dt>
+                                    <dd class="font-medium text-stone-900 dark:text-stone-100">{{ formatMoney(profitLossYear.feed_expense) }}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-stone-500 dark:text-stone-400">Purchase (cow)</dt>
+                                    <dd class="font-medium text-stone-900 dark:text-stone-100">{{ formatMoney(profitLossYear.purchase_expense) }}</dd>
+                                </div>
+                                <div class="flex justify-between border-t border-stone-200 pt-2 dark:border-stone-700">
+                                    <dt class="text-stone-500 dark:text-stone-400">Total income</dt>
+                                    <dd class="font-medium text-stone-900 dark:text-stone-100">{{ formatMoney(profitLossYear.total_income) }}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-stone-500 dark:text-stone-400">Total expense</dt>
+                                    <dd class="font-medium text-stone-900 dark:text-stone-100">{{ formatMoney(profitLossYear.total_expense) }}</dd>
+                                </div>
+                                <div class="flex justify-between border-t border-stone-200 pt-2 dark:border-stone-700">
+                                    <dt class="font-medium text-stone-700 dark:text-stone-300">Profit / Loss</dt>
+                                    <dd :class="profitLossYear.profit_loss >= 0 ? 'font-semibold text-green-600 dark:text-green-500' : 'font-semibold text-red-600 dark:text-red-500'">
+                                        {{ formatMoney(profitLossYear.profit_loss) }}
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                        <div class="rounded-xl border border-stone-200/80 bg-white p-4 shadow-sm dark:border-stone-700 dark:bg-stone-800">
+                            <h3 class="text-sm font-medium text-stone-500 dark:text-stone-400">Lifetime</h3>
+                            <dl class="mt-2 space-y-1 text-sm">
+                                <div class="flex justify-between">
+                                    <dt class="text-stone-500 dark:text-stone-400">Income (milk, etc.)</dt>
+                                    <dd class="font-medium text-stone-900 dark:text-stone-100">{{ formatMoney(profitLossLifetime.income) }}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-stone-500 dark:text-stone-400">Dung sell (allocated)</dt>
+                                    <dd class="font-medium text-stone-900 dark:text-stone-100">{{ formatMoney(profitLossLifetime.dung_allocated) }}</dd>
+                                </div>
+                                <div class="flex justify-between border-t border-stone-200 pt-2 dark:border-stone-700">
+                                    <dt class="text-stone-500 dark:text-stone-400">Labour (total / cows)</dt>
+                                    <dd class="font-medium text-stone-900 dark:text-stone-100">{{ formatMoney(profitLossLifetime.labour_allocated) }}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-stone-500 dark:text-stone-400">Feed</dt>
+                                    <dd class="font-medium text-stone-900 dark:text-stone-100">{{ formatMoney(profitLossLifetime.feed_expense) }}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-stone-500 dark:text-stone-400">Purchase (cow)</dt>
+                                    <dd class="font-medium text-stone-900 dark:text-stone-100">{{ formatMoney(profitLossLifetime.purchase_expense) }}</dd>
+                                </div>
+                                <div class="flex justify-between border-t border-stone-200 pt-2 dark:border-stone-700">
+                                    <dt class="text-stone-500 dark:text-stone-400">Total income</dt>
+                                    <dd class="font-medium text-stone-900 dark:text-stone-100">{{ formatMoney(profitLossLifetime.total_income) }}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-stone-500 dark:text-stone-400">Total expense</dt>
+                                    <dd class="font-medium text-stone-900 dark:text-stone-100">{{ formatMoney(profitLossLifetime.total_expense) }}</dd>
+                                </div>
+                                <div class="flex justify-between border-t border-stone-200 pt-2 dark:border-stone-700">
+                                    <dt class="font-medium text-stone-700 dark:text-stone-300">Profit / Loss</dt>
+                                    <dd :class="profitLossLifetime.profit_loss >= 0 ? 'font-semibold text-green-600 dark:text-green-500' : 'font-semibold text-red-600 dark:text-red-500'">
+                                        {{ formatMoney(profitLossLifetime.profit_loss) }}
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <Link
+                            :href="`/animals/${animal.id}/income`"
+                            class="inline-flex items-center rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-50 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
+                        >
+                            Income
+                        </Link>
+                        <Link
+                            :href="`/animals/${animal.id}/expense`"
+                            class="inline-flex items-center rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-50 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
+                        >
+                            Expense
+                        </Link>
+                        <Link
+                            :href="`/animals/${animal.id}/milk`"
+                            class="inline-flex items-center rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-50 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
+                        >
+                            Milk records
+                        </Link>
+                    </div>
+                </div>
             </div>
         </div>
     </AppLayout>
@@ -106,6 +218,28 @@ const props = defineProps({
     animal: {
         type: Object,
         required: true,
+    },
+    profitLossYear: {
+        type: Object,
+        default: () => ({
+            total_income: 0,
+            total_direct_expense: 0,
+            allocated_expense: 0,
+            purchase_expense: 0,
+            total_expense: 0,
+            profit_loss: 0,
+        }),
+    },
+    profitLossLifetime: {
+        type: Object,
+        default: () => ({
+            total_income: 0,
+            total_direct_expense: 0,
+            allocated_expense: 0,
+            purchase_expense: 0,
+            total_expense: 0,
+            profit_loss: 0,
+        }),
     },
 });
 

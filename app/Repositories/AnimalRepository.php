@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Models\Animal;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 /**
@@ -126,5 +127,35 @@ class AnimalRepository extends AbstractRepository
         $ids = array_map('intval', array_unique($ids));
 
         return $this->model->newQuery()->whereIn('id', $ids)->delete();
+    }
+
+    /** Sum purchase_price of animals purchased on a given date. */
+    public function getTotalPurchasePriceForDate(Carbon $date): float
+    {
+        return (float) $this->model->newQuery()
+            ->whereNotNull('purchase_price')
+            ->whereDate('purchase_date', $date)
+            ->sum('purchase_price');
+    }
+
+    /** Sum purchase_price of animals purchased in a given month. */
+    public function getTotalPurchasePriceForMonth(Carbon $monthStart): float
+    {
+        $start = $monthStart->copy()->startOfMonth();
+        $end = $monthStart->copy()->endOfMonth();
+
+        return (float) $this->model->newQuery()
+            ->whereNotNull('purchase_price')
+            ->whereDate('purchase_date', '>=', $start)
+            ->whereDate('purchase_date', '<=', $end)
+            ->sum('purchase_price');
+    }
+
+    /** Sum all purchase_price (all time). */
+    public function getTotalPurchasePriceAll(): float
+    {
+        return (float) $this->model->newQuery()
+            ->whereNotNull('purchase_price')
+            ->sum('purchase_price');
     }
 }

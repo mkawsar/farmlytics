@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Animal;
 use App\Repositories\AnimalRepository;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class AnimalService
@@ -95,5 +96,23 @@ class AnimalService
     public function deleteMany(array $ids): int
     {
         return $this->animalRepository->deleteAnimalsByIds($ids);
+    }
+
+    /** Sum purchase_price of animals purchased on a given date. */
+    public function getTotalPurchasePriceForDate(Carbon $date): float
+    {
+        return $this->animalRepository->getTotalPurchasePriceForDate($date);
+    }
+
+    /** Sum purchase_price of animals purchased in a given month. */
+    public function getTotalPurchasePriceForMonth(Carbon $monthStart): float
+    {
+        return $this->animalRepository->getTotalPurchasePriceForMonth($monthStart);
+    }
+
+    /** Sum all purchase_price (all time). */
+    public function getTotalPurchasePriceAll(): float
+    {
+        return $this->animalRepository->getTotalPurchasePriceAll();
     }
 }

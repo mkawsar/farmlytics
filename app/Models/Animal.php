@@ -6,6 +6,7 @@ use App\Enums\Group;
 use App\Enums\Status;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Animal extends Model
@@ -61,5 +62,20 @@ class Animal extends Model
     public function deletedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'deleted_by');
+    }
+
+    public function incomeTransactions(): HasMany
+    {
+        return $this->hasMany(IncomeTransaction::class);
+    }
+
+    public function expenseTransactions(): HasMany
+    {
+        return $this->hasMany(ExpenseTransaction::class);
+    }
+
+    public function milkRecords(): HasMany
+    {
+        return $this->hasMany(MilkRecord::class);
     }
 }

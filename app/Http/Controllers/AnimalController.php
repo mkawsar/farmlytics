@@ -7,6 +7,8 @@ use App\Http\Requests\Animal\UpdateAnimalRequest;
 use App\Models\Shed;
 use App\Services\AnimalService;
 use App\Services\ShedService;
+use App\Services\TransactionService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,7 +18,8 @@ class AnimalController extends Controller
 {
     public function __construct(
         protected AnimalService $animalService,
-        protected ShedService $shedService
+        protected ShedService $shedService,
+        protected TransactionService $transactionService
     ) {}
 
     /**
@@ -89,9 +92,19 @@ class AnimalController extends Controller
     public function show(int $animal): Response
     {
         $animalModel = $this->animalService->getById($animal);
+        $end = Carbon::today();
+        $startYear = $end->copy()->subYear();
+        $profitLossYear = $this->transactionService->getProfitLossForAnimal($animal, $startYear, $end);
+        $profitLossLifetime = $this->transactionService->getProfitLossForAnimal(
+            $animal,
+            $animalModel->created_at->copy()->startOfDay(),
+            $end
+        );
 
         return Inertia::render('animals/Show', [
             'animal' => $animalModel->load(['shed.farm', 'farm']),
+            'profitLossYear' => $profitLossYear,
+            'profitLossLifetime' => $profitLossLifetime,
         ]);
     }
 
@@ -112,11 +125,23 @@ class AnimalController extends Controller
      */
     public function store(StoreAnimalRequest $request, int $farm, int $shed): RedirectResponse
     {
-        $this->animalService->create(
+        $animal = $this->animalService->create(
             $shed,
             $request->validated(),
             $request->user()?->id
         );
+
+        $validated = $request->validated();
+        if (isset($validated['purchase_price']) && (float) $validated['purchase_price'] > 0) {
+            $this->transactionService->createExpense([
+                'animal_id' => $animal->id,
+                'expense_type' => \App\Enums\ExpenseType::COW_PURCHASE->value,
+                'amount' => (float) $validated['purchase_price'],
+                'transaction_date' => isset($validated['purchase_date']) && $validated['purchase_date']
+                    ? $validated['purchase_date']
+                    : Carbon::today()->toDateString(),
+            ], $request->user()?->id);
+        }
 
         return redirect()->route('farms.sheds.animals.index', [$farm, $shed])->with('success', 'Animal created successfully.');
     }

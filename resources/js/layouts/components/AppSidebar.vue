@@ -44,6 +44,8 @@ const navItems = [
     { label: 'Dashboard', href: '/', icon: '◉' },
     { label: 'Farms', href: '/farms', icon: '◈' },
     { label: 'Animals', href: '/animals', icon: '◇' },
+    { label: 'Income', href: '/income', icon: '↑' },
+    { label: 'Expense', href: '/expense', icon: '↓' },
 ];
 
 function isActive(href) {
