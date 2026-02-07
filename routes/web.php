@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\FarmController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ShedController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthenticationController::class, 'login'])->name('login')->middleware('guest');
@@ -12,4 +13,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthenticationController::class, 'logout'])->name('logout');
     Route::post('farms/bulk-destroy', [FarmController::class, 'bulkDestroy'])->name('farms.bulk-destroy');
     Route::resource('farms', FarmController::class);
+    Route::post('farms/{farm}/sheds/bulk-destroy', [ShedController::class, 'bulkDestroy'])->name('farms.sheds.bulk-destroy');
+    Route::resource('farms.sheds', ShedController::class)->shallow();
 });

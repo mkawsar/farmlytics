@@ -51,6 +51,38 @@
                         </div>
                     </dl>
                 </div>
+
+                <div class="mt-8 flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-stone-900 dark:text-stone-100">Sheds</h2>
+                    <Link
+                        :href="`/farms/${farm.id}/sheds/create`"
+                        class="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-50 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
+                    >
+                        Add shed
+                    </Link>
+                </div>
+                <div class="mt-4 rounded-xl border border-stone-200/80 bg-white shadow-sm dark:border-stone-700 dark:bg-stone-800">
+                    <Link
+                        :href="`/farms/${farm.id}/sheds`"
+                        class="block px-4 py-3 text-sm font-medium text-green-600 hover:bg-stone-50 dark:hover:bg-stone-700/50 dark:text-green-500 sm:px-6"
+                    >
+                        Manage sheds ({{ farm.sheds ? farm.sheds.length : 0 }})
+                    </Link>
+                    <ul v-if="farm.sheds && farm.sheds.length > 0" class="divide-y divide-stone-200 dark:divide-stone-700">
+                        <li v-for="shed in farm.sheds" :key="shed.id">
+                            <Link
+                                :href="`/sheds/${shed.id}`"
+                                class="flex items-center justify-between px-4 py-3 text-sm text-stone-700 transition hover:bg-stone-50 dark:text-stone-300 dark:hover:bg-stone-700/50 sm:px-6"
+                            >
+                                <span class="font-medium">{{ shed.name }}</span>
+                                <span class="text-stone-500 dark:text-stone-400">{{ shedTypeLabel(shed.type) }} · {{ shed.capacity != null ? shed.capacity : '—' }} capacity</span>
+                            </Link>
+                        </li>
+                    </ul>
+                    <p v-else class="px-4 py-6 text-center text-sm text-stone-500 dark:text-stone-400 sm:px-6">
+                        No sheds yet. <Link :href="`/farms/${farm.id}/sheds/create`" class="font-medium text-green-600 hover:underline dark:text-green-500">Add a shed</Link>
+                    </p>
+                </div>
             </div>
         </div>
     </AppLayout>
@@ -58,6 +90,8 @@
 
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
+import { farmTypeLabel } from '../../constants/farmTypes';
+import { shedTypeLabel } from '../../constants/shedTypes';
 import { useConfirmDelete } from '../../composables/useConfirmDelete';
 import AppLayout from '../../layouts/AppLayout.vue';
 
@@ -69,16 +103,6 @@ const props = defineProps({
 });
 
 const { open: openConfirmDelete } = useConfirmDelete();
-
-const FARM_TYPES = {
-    dairy: 'Dairy',
-    fattening: 'Fattening',
-    mixed: 'Mixed',
-};
-
-function farmTypeLabel(type) {
-    return type ? (FARM_TYPES[type] ?? type) : '—';
-}
 
 function confirmDelete() {
     openConfirmDelete({

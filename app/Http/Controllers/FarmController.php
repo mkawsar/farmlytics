@@ -48,6 +48,7 @@ class FarmController extends Controller
     public function show(int $farm): Response
     {
         $farm = $this->farmService->getById($farm);
+        $farm->load('sheds');
 
         return Inertia::render('farms/Show', [
             'farm' => $farm,
