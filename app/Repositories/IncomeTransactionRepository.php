@@ -117,6 +117,25 @@ class IncomeTransactionRepository extends AbstractRepository
         return (float) $this->model->newQuery()->sum('amount');
     }
 
+    /** Daily income sums for a calendar month. Returns map of date (Y-m-d) => amount. */
+    public function getDailySumsForMonth(Carbon $monthStart): array
+    {
+        $start = $monthStart->copy()->startOfMonth();
+        $end = $monthStart->copy()->endOfMonth();
+        $rows = $this->model->newQuery()
+            ->selectRaw('DATE(transaction_date) as date, SUM(amount) as total')
+            ->whereDate('transaction_date', '>=', $start)
+            ->whereDate('transaction_date', '<=', $end)
+            ->groupBy('date')
+            ->get();
+        $out = [];
+        foreach ($rows as $row) {
+            $out[$row->date] = (float) $row->total;
+        }
+
+        return $out;
+    }
+
     public function deleteTransaction(int $id): bool
     {
         $record = $this->model->newQuery()->find($id);

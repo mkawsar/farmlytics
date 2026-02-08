@@ -185,6 +185,45 @@ class ExpenseTransactionRepository extends AbstractRepository
             ->sum('amount');
     }
 
+    /** Daily expense sums for a calendar month (transaction_date; direct only). Returns map of date (Y-m-d) => amount. */
+    public function getDailySumsForMonth(Carbon $monthStart): array
+    {
+        $start = $monthStart->copy()->startOfMonth();
+        $end = $monthStart->copy()->endOfMonth();
+        $rows = $this->model->newQuery()
+            ->selectRaw('DATE(transaction_date) as date, SUM(amount) as total')
+            ->whereDate('transaction_date', '>=', $start)
+            ->whereDate('transaction_date', '<=', $end)
+            ->groupBy('date')
+            ->get();
+        $out = [];
+        foreach ($rows as $row) {
+            $out[$row->date] = (float) $row->total;
+        }
+
+        return $out;
+    }
+
+    /** Daily COW_PURCHASE expense sums for a calendar month. Returns map of date (Y-m-d) => amount. */
+    public function getDailyCowPurchaseSumsForMonth(Carbon $monthStart): array
+    {
+        $start = $monthStart->copy()->startOfMonth();
+        $end = $monthStart->copy()->endOfMonth();
+        $rows = $this->model->newQuery()
+            ->selectRaw('DATE(transaction_date) as date, SUM(amount) as total')
+            ->where('expense_type', ExpenseType::COW_PURCHASE->value)
+            ->whereDate('transaction_date', '>=', $start)
+            ->whereDate('transaction_date', '<=', $end)
+            ->groupBy('date')
+            ->get();
+        $out = [];
+        foreach ($rows as $row) {
+            $out[$row->date] = (float) $row->total;
+        }
+
+        return $out;
+    }
+
     /** Sum COW_PURCHASE expense for a single day (to avoid double-count with animal purchase in dashboard). */
     public function getTotalCowPurchaseForDate(Carbon $date): float
     {

@@ -151,6 +151,26 @@ class AnimalRepository extends AbstractRepository
             ->sum('purchase_price');
     }
 
+    /** Daily purchase_price sums for a calendar month (by purchase_date). Returns map of date (Y-m-d) => amount. */
+    public function getDailyPurchasePriceSumsForMonth(Carbon $monthStart): array
+    {
+        $start = $monthStart->copy()->startOfMonth();
+        $end = $monthStart->copy()->endOfMonth();
+        $rows = $this->model->newQuery()
+            ->selectRaw('DATE(purchase_date) as date, SUM(purchase_price) as total')
+            ->whereNotNull('purchase_price')
+            ->whereDate('purchase_date', '>=', $start)
+            ->whereDate('purchase_date', '<=', $end)
+            ->groupBy('date')
+            ->get();
+        $out = [];
+        foreach ($rows as $row) {
+            $out[$row->date] = (float) $row->total;
+        }
+
+        return $out;
+    }
+
     /** Sum all purchase_price (all time). */
     public function getTotalPurchasePriceAll(): float
     {

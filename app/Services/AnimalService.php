@@ -115,4 +115,10 @@ class AnimalService
     {
         return $this->animalRepository->getTotalPurchasePriceAll();
     }
+
+    /** Daily purchase_price sums for a calendar month (by purchase_date). Returns map of date (Y-m-d) => amount. */
+    public function getDailyPurchasePriceSumsForMonth(Carbon $monthStart): array
+    {
+        return $this->animalRepository->getDailyPurchasePriceSumsForMonth($monthStart);
+    }
 }

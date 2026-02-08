@@ -269,4 +269,53 @@ class TransactionService
             'total_profit' => $totalIncome - $totalExpense,
         ];
     }
+
+    /**
+     * Day-wise income and expense for a month (for dashboard table).
+     * If $yearMonth is null or current month, only days 1..today are returned. Otherwise all days in that month.
+     *
+     * @param  string|null  $yearMonth  Format Y-m (e.g. 2026-02)
+     * @return array<int, array{date: string, income: float, expense: float, profit: float}>
+     */
+    public function getDayWiseIncomeExpenseForMonth(?string $yearMonth = null): array
+    {
+        $today = Carbon::today();
+        if ($yearMonth !== null && preg_match('/^\d{4}-\d{2}$/', $yearMonth)) {
+            $monthStart = Carbon::createFromFormat('Y-m', $yearMonth)->startOfMonth();
+            $isCurrentMonth = $monthStart->isSameMonth($today);
+            $lastDay = $isCurrentMonth ? (int) $today->format('d') : (int) $monthStart->copy()->endOfMonth()->format('d');
+        } else {
+            $monthStart = $today->copy()->startOfMonth();
+            $lastDay = (int) $today->format('d');
+        }
+        $incomeByDate = $this->incomeRepository->getDailySumsForMonth($monthStart);
+        $expenseByDate = $this->expenseRepository->getDailySumsForMonth($monthStart);
+        $cowPurchaseByDate = $this->expenseRepository->getDailyCowPurchaseSumsForMonth($monthStart);
+        $animalPurchaseByDate = $this->animalService->getDailyPurchasePriceSumsForMonth($monthStart);
+
+        $rows = [];
+        for ($day = 1; $day <= $lastDay; $day++) {
+            $date = $monthStart->copy()->day($day)->format('Y-m-d');
+            $income = $incomeByDate[$date] ?? 0.0;
+            $expenseRaw = $expenseByDate[$date] ?? 0.0;
+            $expense = $expenseRaw
+                + ($animalPurchaseByDate[$date] ?? 0.0)
+                - ($cowPurchaseByDate[$date] ?? 0.0);
+            $profit = $income - $expense;
+            $rows[] = [
+                'date' => $date,
+                'income' => $income,
+                'expense' => $expense,
+                'profit' => $profit,
+            ];
+        }
+
+        return array_reverse($rows);
+    }
+
+    /** @return array<int, array{date: string, income: float, expense: float, profit: float}> */
+    public function getDayWiseIncomeExpenseForCurrentMonth(): array
+    {
+        return $this->getDayWiseIncomeExpenseForMonth(null);
+    }
 }
