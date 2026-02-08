@@ -7,6 +7,7 @@ namespace App\Repositories;
 use App\Models\Animal;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Repository for animal entity data access.
@@ -156,7 +157,7 @@ class AnimalRepository extends AbstractRepository
     {
         $start = $monthStart->copy()->startOfMonth();
         $end = $monthStart->copy()->endOfMonth();
-        $rows = $this->model->newQuery()
+        $rows = DB::table($this->model->getTable())
             ->selectRaw('DATE(purchase_date) as date, SUM(purchase_price) as total')
             ->whereNotNull('purchase_price')
             ->whereDate('purchase_date', '>=', $start)

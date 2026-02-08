@@ -8,6 +8,7 @@ use App\Enums\ExpenseType;
 use App\Models\ExpenseTransaction;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @extends AbstractRepository<ExpenseTransaction>
@@ -190,7 +191,7 @@ class ExpenseTransactionRepository extends AbstractRepository
     {
         $start = $monthStart->copy()->startOfMonth();
         $end = $monthStart->copy()->endOfMonth();
-        $rows = $this->model->newQuery()
+        $rows = DB::table($this->model->getTable())
             ->selectRaw('DATE(transaction_date) as date, SUM(amount) as total')
             ->whereDate('transaction_date', '>=', $start)
             ->whereDate('transaction_date', '<=', $end)
@@ -209,7 +210,7 @@ class ExpenseTransactionRepository extends AbstractRepository
     {
         $start = $monthStart->copy()->startOfMonth();
         $end = $monthStart->copy()->endOfMonth();
-        $rows = $this->model->newQuery()
+        $rows = DB::table($this->model->getTable())
             ->selectRaw('DATE(transaction_date) as date, SUM(amount) as total')
             ->where('expense_type', ExpenseType::COW_PURCHASE->value)
             ->whereDate('transaction_date', '>=', $start)

@@ -8,6 +8,7 @@ use App\Enums\IncomeType;
 use App\Models\IncomeTransaction;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @extends AbstractRepository<IncomeTransaction>
@@ -122,7 +123,7 @@ class IncomeTransactionRepository extends AbstractRepository
     {
         $start = $monthStart->copy()->startOfMonth();
         $end = $monthStart->copy()->endOfMonth();
-        $rows = $this->model->newQuery()
+        $rows = DB::table($this->model->getTable())
             ->selectRaw('DATE(transaction_date) as date, SUM(amount) as total')
             ->whereDate('transaction_date', '>=', $start)
             ->whereDate('transaction_date', '<=', $end)
