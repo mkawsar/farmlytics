@@ -40,7 +40,7 @@ class ShedRepository extends AbstractRepository
      */
     public function getShedsPaginatedByFarm(int $farmId, ?string $search = null, int $perPage = 15): LengthAwarePaginator
     {
-        $query = $this->model->newQuery()->where('farm_id', $farmId);
+        $query = $this->model->newQuery()->with('farm')->where('farm_id', $farmId);
 
         if ($search !== null && trim($search) !== '') {
             $term = '%'.trim($search).'%';

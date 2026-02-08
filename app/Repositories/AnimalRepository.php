@@ -52,7 +52,7 @@ class AnimalRepository extends AbstractRepository
      */
     public function getAnimalsPaginatedByShed(int $shedId, ?string $search = null, int $perPage = 15): LengthAwarePaginator
     {
-        $query = $this->model->newQuery()->where('shed_id', $shedId);
+        $query = $this->model->newQuery()->with(['shed', 'farm'])->where('shed_id', $shedId);
 
         if ($search !== null && trim($search) !== '') {
             $term = '%'.trim($search).'%';
