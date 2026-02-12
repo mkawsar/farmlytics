@@ -8,6 +8,7 @@ use App\Models\Animal;
 use App\Repositories\AnimalRepository;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class AnimalService
 {
@@ -15,6 +16,16 @@ class AnimalService
         protected AnimalRepository $animalRepository,
         protected ShedService $shedService
     ) {}
+
+    /**
+     * Get all active animals (for dashboard lifecycle report).
+     *
+     * @return Collection<int, Animal>
+     */
+    public function getActiveAnimals(): Collection
+    {
+        return $this->animalRepository->getActiveAnimals();
+    }
 
     /**
      * Get a paginated list of all animals with optional search.

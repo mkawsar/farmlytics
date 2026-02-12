@@ -103,6 +103,31 @@ class ExpenseTransactionRepository extends AbstractRepository
             ->sum('amount');
     }
 
+    /** Sum medicine expense for an animal between dates. */
+    public function getTotalMedicineForAnimalBetweenDates(int $animalId, Carbon $start, Carbon $end): float
+    {
+        return (float) $this->model->newQuery()
+            ->where('animal_id', $animalId)
+            ->where('expense_type', ExpenseType::MEDICINE->value)
+            ->whereDate('transaction_date', '>=', $start)
+            ->whereDate('transaction_date', '<=', $end)
+            ->sum('amount');
+    }
+
+    /** Sum feeds expense (fodder + concentrate only) for an animal between dates. */
+    public function getTotalFodderConcentrateForAnimalBetweenDates(int $animalId, Carbon $start, Carbon $end): float
+    {
+        return (float) $this->model->newQuery()
+            ->where('animal_id', $animalId)
+            ->whereIn('expense_type', [
+                ExpenseType::FODDER->value,
+                ExpenseType::CONCENTRATE->value,
+            ])
+            ->whereDate('transaction_date', '>=', $start)
+            ->whereDate('transaction_date', '<=', $end)
+            ->sum('amount');
+    }
+
     /** Get monthly allocatable expenses (labour, electricity, water) for a shed in a given month. */
     public function getMonthlyAllocatableForShed(int $shedId, Carbon $monthStart): Collection
     {

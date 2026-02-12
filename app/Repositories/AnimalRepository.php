@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Enums\Status;
 use App\Models\Animal;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -178,5 +180,19 @@ class AnimalRepository extends AbstractRepository
         return (float) $this->model->newQuery()
             ->whereNotNull('purchase_price')
             ->sum('purchase_price');
+    }
+
+    /**
+     * Get all active animals (status = active) for dashboard report links.
+     *
+     * @return Collection<int, Animal>
+     */
+    public function getActiveAnimals(): Collection
+    {
+        /** @var Collection<int, Animal> */
+        return $this->model->newQuery()
+            ->where('status', Status::ACTIVE->value)
+            ->orderBy('animal_id')
+            ->get(['id', 'animal_id', 'breed', 'status']);
     }
 }

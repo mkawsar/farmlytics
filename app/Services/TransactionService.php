@@ -171,6 +171,41 @@ class TransactionService
     }
 
     /**
+     * Get full lifecycle summary for a cow: purchase, total investment (purchase + medicine + labour + feeds), selling price, profit/loss.
+     *
+     * @return array{purchase_date: string|null, purchase_price: float, medicine: float, labour_allocated: float, feeds: float, total_invest: float, selling_price: float, profit_loss: float, is_sold: bool}
+     */
+    public function getLifecycleSummaryForAnimal(int $animalId): array
+    {
+        $animal = $this->animalService->getById($animalId);
+        $start = $animal->created_at->copy()->startOfDay();
+        $end = Carbon::today();
+
+        $pl = $this->getProfitLossForAnimal($animalId, $start, $end);
+        $purchasePrice = $pl['purchase_expense'];
+        $labourAllocated = $pl['labour_allocated'];
+        $medicine = $this->expenseRepository->getTotalMedicineForAnimalBetweenDates($animalId, $start, $end);
+        $feeds = $this->expenseRepository->getTotalFodderConcentrateForAnimalBetweenDates($animalId, $start, $end);
+
+        $totalInvest = $purchasePrice + $medicine + $labourAllocated + $feeds;
+        $sellingPrice = $this->incomeRepository->getTotalAnimalSaleForAnimal($animalId);
+        $profitLoss = $sellingPrice - $totalInvest;
+        $isSold = $animal->status === Status::SOLD;
+
+        return [
+            'purchase_date' => $animal->purchase_date?->format('Y-m-d'),
+            'purchase_price' => $purchasePrice,
+            'medicine' => $medicine,
+            'labour_allocated' => $labourAllocated,
+            'feeds' => $feeds,
+            'total_invest' => $totalInvest,
+            'selling_price' => $sellingPrice,
+            'profit_loss' => $profitLoss,
+            'is_sold' => $isSold,
+        ];
+    }
+
+    /**
      * Allocate monthly shed costs (labour, electricity, water) to this animal for each month in range.
      * Uses current animal count in shed per month (no movement history).
      */

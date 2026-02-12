@@ -8,9 +8,11 @@ use App\Models\Shed;
 use App\Services\AnimalService;
 use App\Services\ShedService;
 use App\Services\TransactionService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -106,6 +108,24 @@ class AnimalController extends Controller
             'profitLossYear' => $profitLossYear,
             'profitLossLifetime' => $profitLossLifetime,
         ]);
+    }
+
+    /**
+     * Download PDF report: full lifecycle (purchase, total invest, selling price, profit/loss) for this cow.
+     */
+    public function downloadLifecycleReport(int $animal): HttpResponse
+    {
+        $animalModel = $this->animalService->getById($animal);
+        $lifecycle = $this->transactionService->getLifecycleSummaryForAnimal($animal);
+
+        $pdf = Pdf::loadView('reports.cow-lifecycle-pdf', [
+            'animal' => $animalModel,
+            'lifecycle' => $lifecycle,
+        ]);
+
+        $filename = 'cow-lifecycle-' . preg_replace('/[^a-zA-Z0-9_-]/', '-', $animalModel->animal_id) . '.pdf';
+
+        return $pdf->download($filename);
     }
 
     /**

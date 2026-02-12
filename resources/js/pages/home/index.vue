@@ -113,6 +113,42 @@
                     </div>
                 </div>
 
+                <!-- Active cows: Lifecycle PDF report -->
+                <div class="mt-10">
+                    <h2 class="text-lg font-semibold text-stone-900 dark:text-stone-100">Active cows – Lifecycle report</h2>
+                    <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">Download PDF report (purchase, total invest, selling price, profit/loss) for each active cow.</p>
+                    <div v-if="activeAnimals.length === 0" class="mt-4 rounded-xl border border-stone-200/80 bg-stone-50 px-4 py-6 text-center text-sm text-stone-500 dark:border-stone-700 dark:bg-stone-800/50 dark:text-stone-400">
+                        No active cows. Add animals and set status to Active to see them here.
+                    </div>
+                    <div v-else class="mt-4 overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-sm dark:border-stone-700 dark:bg-stone-800">
+                        <table class="min-w-full divide-y divide-stone-200 dark:divide-stone-700">
+                            <thead class="bg-stone-50 dark:bg-stone-800/80">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-stone-500 dark:text-stone-400">Animal ID</th>
+                                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-stone-500 dark:text-stone-400">Breed</th>
+                                    <th scope="col" class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-stone-500 dark:text-stone-400">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-stone-200 dark:divide-stone-700">
+                                <tr v-for="cow in activeAnimals" :key="cow.id" class="hover:bg-stone-50/80 dark:hover:bg-stone-700/30">
+                                    <td class="whitespace-nowrap px-4 py-3 text-sm font-medium text-stone-900 dark:text-stone-100">{{ cow.animal_id }}</td>
+                                    <td class="whitespace-nowrap px-4 py-3 text-sm text-stone-600 dark:text-stone-300">{{ cow.breed }}</td>
+                                    <td class="whitespace-nowrap px-4 py-3 text-right text-sm">
+                                        <a
+                                            :href="`/animals/${cow.id}/report/lifecycle`"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="inline-flex items-center rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-700 transition hover:bg-stone-50 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
+                                        >
+                                            Download PDF report
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="mt-8 flex flex-wrap gap-3">
                     <Link
                         href="/income"
@@ -159,6 +195,10 @@ const props = defineProps({
     selectedMonth: {
         type: String,
         default: () => new Date().toISOString().slice(0, 7),
+    },
+    activeAnimals: {
+        type: Array,
+        default: () => [],
     },
 });
 

@@ -63,6 +63,15 @@ class IncomeTransactionRepository extends AbstractRepository
             ->sum('amount');
     }
 
+    /** Sum animal sale income for an animal (all time; selling price when cow is sold). */
+    public function getTotalAnimalSaleForAnimal(int $animalId): float
+    {
+        return (float) $this->model->newQuery()
+            ->where('animal_id', $animalId)
+            ->where('income_type', IncomeType::ANIMAL_SALE->value)
+            ->sum('amount');
+    }
+
     /** Sum dung sale income for a shed between dates (shed-level or per-animal; used to allocate per cow). */
     public function getTotalDungSaleForShedBetweenDates(int $shedId, Carbon $start, Carbon $end): float
     {

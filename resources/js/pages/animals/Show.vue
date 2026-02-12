@@ -21,6 +21,14 @@
                         </p>
                     </div>
                     <div class="flex gap-2">
+                        <a
+                            :href="`/animals/${animal.id}/report/lifecycle`"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex cursor-pointer items-center justify-center rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-semibold text-stone-700 transition hover:bg-stone-50 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
+                        >
+                            Download PDF report
+                        </a>
                         <Link
                             :href="`/animals/${animal.id}/edit`"
                             class="inline-flex cursor-pointer items-center justify-center rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-semibold text-stone-700 transition hover:bg-stone-50 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
