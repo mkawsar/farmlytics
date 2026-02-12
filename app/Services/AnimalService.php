@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Animal;
 use App\Repositories\AnimalRepository;
+use App\Support\BreedCode;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -58,7 +59,22 @@ class AnimalService
     }
 
     /**
+     * Generate animal_id in format CODE-YYYYMM-N (e.g. HF-202602-1).
+     * CODE = breed code (e.g. Holstein → HF), YYYYMM = year-month, N = next sequence for that code+month.
+     */
+    public function generateAnimalId(string $breed, ?Carbon $date = null): string
+    {
+        $date = $date ?? Carbon::today();
+        $code = BreedCode::codeFor($breed);
+        $yearMonth = $date->format('Ym');
+        $seq = $this->animalRepository->getNextSequenceForBreedCodeAndMonth($code, $yearMonth);
+
+        return "{$code}-{$yearMonth}-{$seq}";
+    }
+
+    /**
      * Create a new animal for a shed.
+     * If animal_id is empty, it is auto-generated as CODE-YYYYMM-N (e.g. HF-202602-1).
      *
      * @param  array<string, mixed>  $data  Validated data (animal_id, breed, gender, etc.).
      * @param  int|null  $userId  Authenticated user id for created_by.
@@ -72,6 +88,8 @@ class AnimalService
             $data['created_by'] = $userId;
             $data['updated_by'] = $userId;
         }
+        // Always generate animal_id from breed (e.g. Holstein → HF-202602-1)
+        $data['animal_id'] = $this->generateAnimalId($data['breed'] ?? '');
 
         return $this->animalRepository->createAnimal($data);
     }

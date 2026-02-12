@@ -14,31 +14,30 @@
 
                 <form class="mt-8 space-y-6 rounded-xl border border-stone-200/80 bg-white p-6 shadow-sm dark:border-stone-700 dark:bg-stone-800 sm:p-8" @submit.prevent="submit">
                     <div>
-                        <label for="animal_id" class="block text-sm font-medium text-stone-700 dark:text-stone-300">Animal ID (QR / RFID) <span class="text-red-500">*</span></label>
-                        <input
-                            id="animal_id"
-                            v-model="form.animal_id"
-                            type="text"
+                        <label for="breed" class="block text-sm font-medium text-stone-700 dark:text-stone-300">Breed <span class="text-red-500">*</span></label>
+                        <select
+                            id="breed"
+                            v-model="form.breed"
                             required
-                            autocomplete="off"
-                            class="mt-1.5 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-stone-900 placeholder-stone-400 focus:border-[#2d5016] focus:outline-none focus:ring-2 focus:ring-[#2d5016]/20 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100 dark:placeholder-stone-500"
-                            placeholder="e.g. RFID-001"
-                        />
-                        <p v-if="form.errors.animal_id" class="mt-1.5 text-sm text-rose-600">{{ form.errors.animal_id }}</p>
+                            class="mt-1.5 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-stone-900 focus:border-[#2d5016] focus:outline-none focus:ring-2 focus:ring-[#2d5016]/20 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
+                        >
+                            <option value="" disabled>Select breed</option>
+                            <option v-for="opt in breedOptions" :key="opt.value" :value="opt.value">
+                                {{ opt.value }} ({{ opt.code }})
+                            </option>
+                        </select>
+                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">Animal ID will be generated as {{ breedCodePreview }} when you save.</p>
+                        <p v-if="form.errors.breed" class="mt-1.5 text-sm text-rose-600">{{ form.errors.breed }}</p>
                     </div>
 
                     <div>
-                        <label for="breed" class="block text-sm font-medium text-stone-700 dark:text-stone-300">Breed <span class="text-red-500">*</span></label>
-                        <input
-                            id="breed"
-                            v-model="form.breed"
-                            type="text"
-                            required
-                            autocomplete="off"
-                            class="mt-1.5 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-stone-900 placeholder-stone-400 focus:border-[#2d5016] focus:outline-none focus:ring-2 focus:ring-[#2d5016]/20 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100 dark:placeholder-stone-500"
-                            placeholder="e.g. Holstein"
-                        />
-                        <p v-if="form.errors.breed" class="mt-1.5 text-sm text-rose-600">{{ form.errors.breed }}</p>
+                        <label class="block text-sm font-medium text-stone-700 dark:text-stone-300">Animal ID</label>
+                        <div
+                            class="mt-1.5 w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-600 dark:border-stone-600 dark:bg-stone-800/50 dark:text-stone-400"
+                        >
+                            {{ generatedAnimalId || '—' }}
+                        </div>
+                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">Generated from breed when you save (e.g. Holstein → HF-202602-1).</p>
                     </div>
 
                     <div>
@@ -165,6 +164,7 @@
 </template>
 
 <script setup>
+import { computed, ref, watch } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '../../layouts/AppLayout.vue';
 
@@ -177,10 +177,20 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    breedOptions: {
+        type: Array,
+        default: () => [],
+    },
+});
+
+const breedCodePreview = computed(() => {
+    const breed = (form.breed || '').trim();
+    if (!breed) return 'CODE-YYYYMM-N';
+    const opt = props.breedOptions.find((o) => o.value.toLowerCase() === breed.toLowerCase());
+    return opt ? `${opt.code}-YYYYMM-N` : 'CODE-YYYYMM-N';
 });
 
 const form = useForm({
-    animal_id: '',
     breed: '',
     gender: '',
     status: 'active',
@@ -190,6 +200,32 @@ const form = useForm({
     purchase_price: '',
     current_weight: '',
 });
+
+const generatedAnimalId = ref('');
+let fetchTimeout = null;
+
+watch(
+    () => form.breed,
+    (breed) => {
+        if (fetchTimeout) clearTimeout(fetchTimeout);
+        const trimmed = (breed || '').trim();
+        if (!trimmed) {
+            generatedAnimalId.value = '';
+            return;
+        }
+        fetchTimeout = setTimeout(() => {
+            fetch(`/animals/next-id?breed=${encodeURIComponent(trimmed)}`, { credentials: 'include' })
+                .then((res) => (res.ok ? res.json() : Promise.reject(res)))
+                .then((data) => {
+                    generatedAnimalId.value = data.animal_id || '';
+                })
+                .catch(() => {
+                    generatedAnimalId.value = '';
+                });
+        }, 300);
+    },
+    { immediate: true }
+);
 
 function submit() {
     form.post(`/farms/${props.farm.id}/sheds/${props.shed.id}/animals`);

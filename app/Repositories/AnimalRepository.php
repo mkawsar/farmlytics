@@ -195,4 +195,19 @@ class AnimalRepository extends AbstractRepository
             ->orderBy('animal_id')
             ->get(['id', 'animal_id', 'breed', 'status']);
     }
+
+    /**
+     * Next sequence number for animal_id format CODE-YYYYMM-N (same breed code + same month).
+     * Returns 1 if no existing animal with that prefix.
+     */
+    public function getNextSequenceForBreedCodeAndMonth(string $code, string $yearMonth): int
+    {
+        $prefix = $code.'-'.$yearMonth.'-';
+        $max = (int) $this->model->newQuery()
+            ->where('animal_id', 'like', $prefix.'%')
+            ->selectRaw("MAX(CAST(SUBSTRING_INDEX(animal_id, '-', -1) AS UNSIGNED)) as max_seq")
+            ->value('max_seq');
+
+        return $max + 1;
+    }
 }

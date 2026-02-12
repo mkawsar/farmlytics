@@ -26,7 +26,6 @@ class StoreAnimalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'animal_id' => ['required', 'string', 'max:255', 'unique:animals,animal_id'],
             'breed' => ['required', 'string', 'max:255'],
             'gender' => ['required', Rule::enum(Gender::class)],
             'date_of_birth' => ['nullable', 'date'],

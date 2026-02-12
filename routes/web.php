@@ -21,6 +21,7 @@ Route::middleware('auth')->group(function () {
     Route::get('expense', [FinanceController::class, 'indexExpense'])->name('expense.index');
     Route::get('expense/select-animal', [FinanceController::class, 'selectAnimalForExpense'])->name('expense.select-animal');
     Route::get('animals', [AnimalController::class, 'indexAll'])->name('animals.index');
+    Route::get('animals/next-id', [AnimalController::class, 'nextAnimalId'])->name('animals.next-id');
     Route::get('animals/{animal}/report/lifecycle', [AnimalController::class, 'downloadLifecycleReport'])->name('animals.report.lifecycle');
     Route::post('animals/bulk-destroy', [AnimalController::class, 'bulkDestroyAll'])->name('animals.bulk-destroy');
     Route::get('animals/select-shed', [AnimalController::class, 'selectShedForCreate'])->name('animals.select-shed');

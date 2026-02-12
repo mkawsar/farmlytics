@@ -8,6 +8,7 @@ use App\Models\Shed;
 use App\Services\AnimalService;
 use App\Services\ShedService;
 use App\Services\TransactionService;
+use App\Support\BreedCode;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -23,6 +24,20 @@ class AnimalController extends Controller
         protected ShedService $shedService,
         protected TransactionService $transactionService
     ) {}
+
+    /**
+     * Return the next animal_id for a given breed (for live preview on create form).
+     * GET /animals/next-id?breed=Holstein → {"animal_id": "HF-202602-1"}
+     */
+    public function nextAnimalId(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $breed = trim((string) $request->query('breed', ''));
+        $animalId = $breed !== ''
+            ? $this->animalService->generateAnimalId($breed)
+            : '';
+
+        return response()->json(['animal_id' => $animalId]);
+    }
 
     /**
      * Display a paginated list of all animals (top-level nav).
@@ -85,6 +100,7 @@ class AnimalController extends Controller
         return Inertia::render('animals/Create', [
             'farm' => $shedModel->farm,
             'shed' => $shedModel,
+            'breedOptions' => BreedCode::optionsForSelect(),
         ]);
     }
 
@@ -123,7 +139,7 @@ class AnimalController extends Controller
             'lifecycle' => $lifecycle,
         ]);
 
-        $filename = 'cow-lifecycle-' . preg_replace('/[^a-zA-Z0-9_-]/', '-', $animalModel->animal_id) . '.pdf';
+        $filename = 'cow-lifecycle-'.preg_replace('/[^a-zA-Z0-9_-]/', '-', $animalModel->animal_id).'.pdf';
 
         return $pdf->download($filename);
     }

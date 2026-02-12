@@ -149,7 +149,7 @@ class AnimalServiceTest extends ServiceTestCase
         /*
          * Given: An animal service with a repository and a shed (with farm_id)
          * When: The service is called to create an animal for that shed
-         * Then: The repository is called with data including shed_id and farm_id from the shed, and the created animal is returned
+         * Then: The repository is called with data including shed_id, farm_id, and generated animal_id (e.g. HF-YYYYMM-1)
          */
         $shedId = 1;
         $farmId = 5;
@@ -157,18 +157,23 @@ class AnimalServiceTest extends ServiceTestCase
         $shed->id = $shedId;
         $shed->farm_id = $farmId;
 
-        $data = ['animal_id' => 'RFID-001', 'breed' => 'Holstein', 'gender' => 'female', 'status' => 'active'];
-        $expectedData = $data + ['shed_id' => $shedId, 'farm_id' => $farmId];
+        $data = ['breed' => 'Holstein', 'gender' => 'female', 'status' => 'active'];
 
         $animal = new Animal;
         $animal->id = 1;
-        $animal->animal_id = $data['animal_id'];
+        $animal->animal_id = 'HF-202602-1';
 
         $repo = Mockery::mock(AnimalRepository::class);
+        $repo->shouldReceive('getNextSequenceForBreedCodeAndMonth')
+            ->once()
+            ->with('HF', Mockery::type('string'))
+            ->andReturn(1);
         $repo->shouldReceive('createAnimal')
             ->once()
             ->with(Mockery::on(function (array $arg) use ($shedId, $farmId) {
-                return $arg['shed_id'] === $shedId && $arg['farm_id'] === $farmId;
+                return $arg['shed_id'] === $shedId
+                    && $arg['farm_id'] === $farmId
+                    && preg_match('/^HF-\d{6}-1$/', (string) ($arg['animal_id'] ?? '')) === 1;
             }))
             ->andReturn($animal);
 
@@ -190,21 +195,27 @@ class AnimalServiceTest extends ServiceTestCase
         /*
          * Given: An animal service with a repository and a user id
          * When: The service is called to create an animal with the user id
-         * Then: The repository is called with data including created_by and updated_by set to the user id
+         * Then: The repository is called with data including created_by, updated_by, and generated animal_id
          */
         $shedId = 1;
         $shed = new Shed;
         $shed->id = $shedId;
         $shed->farm_id = 10;
 
-        $data = ['animal_id' => 'RFID-002', 'breed' => 'Jersey', 'gender' => 'male', 'status' => 'active'];
+        $data = ['breed' => 'Jersey', 'gender' => 'male', 'status' => 'active'];
         $userId = 42;
 
         $repo = Mockery::mock(AnimalRepository::class);
+        $repo->shouldReceive('getNextSequenceForBreedCodeAndMonth')
+            ->once()
+            ->with('JY', Mockery::type('string'))
+            ->andReturn(1);
         $repo->shouldReceive('createAnimal')
             ->once()
             ->with(Mockery::on(function (array $arg) use ($userId) {
-                return $arg['created_by'] === $userId && $arg['updated_by'] === $userId;
+                return $arg['created_by'] === $userId
+                    && $arg['updated_by'] === $userId
+                    && preg_match('/^JY-\d{6}-1$/', (string) ($arg['animal_id'] ?? '')) === 1;
             }))
             ->andReturn(new Animal);
 
